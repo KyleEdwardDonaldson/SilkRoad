@@ -4,6 +4,7 @@ import dev.ked.silkroad.SilkRoadPlugin;
 import dev.ked.silkroad.cargo.CargoItem;
 import dev.ked.silkroad.contracts.Contract;
 import dev.ked.silkroad.contracts.ContractManager;
+import dev.ked.silkroad.gui.TradePostMainGUI;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -64,11 +65,11 @@ public class TradePostListener implements Listener {
             return;
         }
 
-        // TODO: Open trade post GUI
-        // For now, just send a message
-        player.sendMessage("§6§lTrade Post");
-        player.sendMessage("§7Right-click with cargo to deliver");
-        player.sendMessage("§7GUI coming soon!");
+        // Open trade post GUI
+        TradePost tradePost = tradePostManager.getTradePost(location);
+        if (tradePost != null) {
+            new TradePostMainGUI(plugin, tradePost, player).open();
+        }
 
         event.setCancelled(true);
     }

@@ -2,7 +2,9 @@ package dev.ked.silkroad.storage;
 
 import com.google.gson.*;
 import dev.ked.silkroad.SilkRoadPlugin;
+import dev.ked.silkroad.transport.CompletedContractRecord;
 import dev.ked.silkroad.transport.TransporterManager.TransporterData;
+import org.bukkit.Material;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -122,8 +124,43 @@ public class TransporterDataManager {
         json.addProperty("level", data.getLevel());
         json.addProperty("xp", data.getXp());
         json.addProperty("completedContracts", data.getCompletedContracts());
+        json.addProperty("failedContracts", data.getFailedContracts());
+        json.addProperty("cancelledContracts", data.getCancelledContracts());
         json.addProperty("totalDistance", data.getTotalDistance());
         json.addProperty("totalEarnings", data.getTotalEarnings());
+        json.addProperty("totalTravelTime", data.getTotalTravelTime());
+
+        // Serialize region deliveries map
+        JsonObject regionDeliveries = new JsonObject();
+        for (Map.Entry<String, Integer> entry : data.getRegionDeliveries().entrySet()) {
+            regionDeliveries.addProperty(entry.getKey(), entry.getValue());
+        }
+        json.add("regionDeliveries", regionDeliveries);
+
+        // Serialize regions visited map
+        JsonObject regionsVisited = new JsonObject();
+        for (Map.Entry<String, Integer> entry : data.getRegionsVisited().entrySet()) {
+            regionsVisited.addProperty(entry.getKey(), entry.getValue());
+        }
+        json.add("regionsVisited", regionsVisited);
+
+        // Serialize recent history
+        JsonArray history = new JsonArray();
+        for (CompletedContractRecord record : data.getRecentHistory()) {
+            JsonObject recordObj = new JsonObject();
+            recordObj.addProperty("contractId", record.getContractId().toString());
+            recordObj.addProperty("completedAt", record.getCompletedAt());
+            recordObj.addProperty("originRegion", record.getOriginRegion());
+            recordObj.addProperty("destinationRegion", record.getDestinationRegion());
+            recordObj.addProperty("itemType", record.getItemType().name());
+            recordObj.addProperty("quantity", record.getQuantity());
+            recordObj.addProperty("bountyEarned", record.getBountyEarned());
+            recordObj.addProperty("distance", record.getDistance());
+            recordObj.addProperty("travelTime", record.getTravelTime());
+            history.add(recordObj);
+        }
+        json.add("recentHistory", history);
+
         return json;
     }
 
@@ -137,6 +174,58 @@ public class TransporterDataManager {
         data.setCompletedContracts(json.get("completedContracts").getAsInt());
         data.setTotalDistance(json.get("totalDistance").getAsDouble());
         data.setTotalEarnings(json.get("totalEarnings").getAsDouble());
+
+        // Load new fields (with defaults for backward compatibility)
+        if (json.has("failedContracts")) {
+            data.setFailedContracts(json.get("failedContracts").getAsInt());
+        }
+        if (json.has("cancelledContracts")) {
+            data.setCancelledContracts(json.get("cancelledContracts").getAsInt());
+        }
+        if (json.has("totalTravelTime")) {
+            data.setTotalTravelTime(json.get("totalTravelTime").getAsLong());
+        }
+
+        // Load region deliveries map
+        if (json.has("regionDeliveries")) {
+            JsonObject regionDeliveries = json.getAsJsonObject("regionDeliveries");
+            for (Map.Entry<String, JsonElement> entry : regionDeliveries.entrySet()) {
+                for (int i = 0; i < entry.getValue().getAsInt(); i++) {
+                    data.recordDelivery(entry.getKey());
+                }
+            }
+        }
+
+        // Load regions visited map
+        if (json.has("regionsVisited")) {
+            JsonObject regionsVisited = json.getAsJsonObject("regionsVisited");
+            for (Map.Entry<String, JsonElement> entry : regionsVisited.entrySet()) {
+                for (int i = 0; i < entry.getValue().getAsInt(); i++) {
+                    data.recordRegionVisit(entry.getKey());
+                }
+            }
+        }
+
+        // Load recent history
+        if (json.has("recentHistory")) {
+            JsonArray history = json.getAsJsonArray("recentHistory");
+            for (JsonElement element : history) {
+                JsonObject recordObj = element.getAsJsonObject();
+                CompletedContractRecord record = new CompletedContractRecord(
+                        UUID.fromString(recordObj.get("contractId").getAsString()),
+                        recordObj.get("completedAt").getAsLong(),
+                        recordObj.get("originRegion").getAsString(),
+                        recordObj.get("destinationRegion").getAsString(),
+                        Material.valueOf(recordObj.get("itemType").getAsString()),
+                        recordObj.get("quantity").getAsInt(),
+                        recordObj.get("bountyEarned").getAsDouble(),
+                        recordObj.get("distance").getAsDouble(),
+                        recordObj.get("travelTime").getAsLong()
+                );
+                data.addToHistory(record);
+            }
+        }
+
         return data;
     }
 

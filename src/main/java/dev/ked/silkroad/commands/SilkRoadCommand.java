@@ -1,12 +1,16 @@
 package dev.ked.silkroad.commands;
 
+import dev.ked.bettershop.BetterShopPlugin;
+import dev.ked.bettershop.ui.ShopDirectoryGUI;
 import dev.ked.silkroad.SilkRoadPlugin;
 import dev.ked.silkroad.contracts.Contract;
 import dev.ked.silkroad.contracts.ContractManager;
+import dev.ked.silkroad.gui.StatsGUI;
 import dev.ked.silkroad.transport.TransporterManager;
 import dev.ked.silkroad.transport.TransporterManager.TransporterData;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -15,6 +19,7 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Main /silkroad command handler.
@@ -54,7 +59,17 @@ public class SilkRoadCommand implements CommandExecutor, TabCompleter {
                     sender.sendMessage("§cThis command can only be used by players!");
                     return true;
                 }
-                showStats((Player) sender);
+                // Check if target player specified
+                if (args.length > 1) {
+                    Player target = Bukkit.getPlayer(args[1]);
+                    if (target == null) {
+                        sender.sendMessage("§cPlayer not found!");
+                        return true;
+                    }
+                    new StatsGUI(plugin, (Player) sender, target.getUniqueId()).open();
+                } else {
+                    new StatsGUI(plugin, (Player) sender, ((Player) sender).getUniqueId()).open();
+                }
                 return true;
 
             case "contracts":
@@ -63,6 +78,34 @@ public class SilkRoadCommand implements CommandExecutor, TabCompleter {
                     return true;
                 }
                 showContracts((Player) sender);
+                return true;
+
+            case "history":
+                if (!(sender instanceof Player)) {
+                    sender.sendMessage("§cThis command can only be used by players!");
+                    return true;
+                }
+                showHistory((Player) sender);
+                return true;
+
+            case "leaderboard":
+            case "lb":
+                showLeaderboard(sender);
+                return true;
+
+            case "shops":
+            case "directory":
+                if (!(sender instanceof Player)) {
+                    sender.sendMessage("§cThis command can only be used by players!");
+                    return true;
+                }
+                // Use BetterShop's directory with silk road filter
+                BetterShopPlugin betterShop = (BetterShopPlugin) Bukkit.getPluginManager().getPlugin("BetterShop");
+                if (betterShop != null) {
+                    new ShopDirectoryGUI(betterShop, (Player) sender, true).open();
+                } else {
+                    sender.sendMessage("§cBetterShop not found!");
+                }
                 return true;
 
             case "admin":
@@ -122,6 +165,90 @@ public class SilkRoadCommand implements CommandExecutor, TabCompleter {
                 .replace("{totalEarnings}", String.format("%.2f", data.getTotalEarnings()));
 
         player.sendMessage(miniMessage.deserialize(message));
+    }
+
+    /**
+     * Show contract history.
+     */
+    private void showHistory(Player player) {
+        TransporterData data = transporterManager.getStats(player.getUniqueId());
+        List<dev.ked.silkroad.transport.CompletedContractRecord> history = data.getRecentHistory();
+
+        if (history.isEmpty()) {
+            player.sendMessage("§eYou have no completed deliveries yet!");
+            return;
+        }
+
+        player.sendMessage("§6§l━━━ Recent Delivery History ━━━");
+        player.sendMessage("§7Showing last " + Math.min(10, history.size()) + " deliveries:");
+
+        java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("MMM dd HH:mm");
+        for (int i = 0; i < Math.min(10, history.size()); i++) {
+            dev.ked.silkroad.transport.CompletedContractRecord record = history.get(i);
+            player.sendMessage(String.format("§7%d. §f%dx %s §7| §e%s §7| §a$%.2f §7| §8%s",
+                    i + 1,
+                    record.getQuantity(),
+                    formatMaterialName(record.getItemType().name()),
+                    record.getRoute(),
+                    record.getBountyEarned(),
+                    dateFormat.format(new java.util.Date(record.getCompletedAt()))));
+        }
+
+        player.sendMessage("§7Use §e/sr stats §7to view detailed statistics!");
+    }
+
+    /**
+     * Show leaderboard.
+     */
+    private void showLeaderboard(CommandSender sender) {
+        // Get all transporter data and sort by various metrics
+        List<UUID> allPlayers = new ArrayList<>();
+
+        // Note: This requires access to all player data
+        // In a production system, you'd cache this or use a database query
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            allPlayers.add(onlinePlayer.getUniqueId());
+        }
+
+        if (allPlayers.isEmpty()) {
+            sender.sendMessage("§eNo transporter data available!");
+            return;
+        }
+
+        // Sort by completed contracts
+        allPlayers.sort((a, b) -> {
+            int aCompleted = transporterManager.getStats(a).getCompletedContracts();
+            int bCompleted = transporterManager.getStats(b).getCompletedContracts();
+            return Integer.compare(bCompleted, aCompleted);
+        });
+
+        sender.sendMessage("§6§l━━━ Top Transporters ━━━");
+        sender.sendMessage("§7Ranked by completed deliveries:");
+
+        int rank = 1;
+        for (int i = 0; i < Math.min(10, allPlayers.size()); i++) {
+            UUID playerId = allPlayers.get(i);
+            TransporterData data = transporterManager.getStats(playerId);
+
+            if (data.getCompletedContracts() == 0) continue;
+
+            String playerName = Bukkit.getOfflinePlayer(playerId).getName();
+            if (playerName == null) playerName = "Unknown";
+
+            sender.sendMessage(String.format("§7%d. §f%s §7- §e%d contracts §7| §a$%.2f earned §7| §b%.0f blocks",
+                    rank++,
+                    playerName,
+                    data.getCompletedContracts(),
+                    data.getTotalEarnings(),
+                    data.getTotalDistance()));
+        }
+
+        sender.sendMessage("§7Use §e/sr stats <player> §7to view player details!");
+    }
+
+    private String formatMaterialName(String material) {
+        String name = material.toLowerCase().replace("_", " ");
+        return name.substring(0, 1).toUpperCase() + name.substring(1);
     }
 
     /**
@@ -262,8 +389,17 @@ public class SilkRoadCommand implements CommandExecutor, TabCompleter {
             completions.add("help");
             completions.add("stats");
             completions.add("contracts");
+            completions.add("history");
+            completions.add("leaderboard");
+            completions.add("shops");
+            completions.add("directory");
             if (sender.hasPermission("silkroad.admin")) {
                 completions.add("admin");
+            }
+        } else if (args.length == 2 && args[0].equalsIgnoreCase("stats")) {
+            // Add online player names for stats viewing
+            for (Player online : Bukkit.getOnlinePlayers()) {
+                completions.add(online.getName());
             }
         } else if (args.length == 2 && args[0].equalsIgnoreCase("admin")) {
             if (sender.hasPermission("silkroad.admin")) {

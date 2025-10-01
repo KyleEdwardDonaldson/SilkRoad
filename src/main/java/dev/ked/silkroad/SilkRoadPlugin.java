@@ -7,8 +7,11 @@ import dev.ked.silkroad.contracts.ContractRegistry;
 import dev.ked.silkroad.bounty.BountyCalculator;
 import dev.ked.silkroad.bounty.DecayManager;
 import dev.ked.silkroad.cargo.CargoProtectionListener;
+import dev.ked.silkroad.cargo.CargoUpdateTask;
+import dev.ked.silkroad.contracts.ContractExpiryWarningTask;
 import dev.ked.silkroad.transport.TransporterManager;
 import dev.ked.silkroad.transport.InsuranceManager;
+import dev.ked.silkroad.transport.MovementTracker;
 import dev.ked.silkroad.tradeposts.TradePostManager;
 import dev.ked.silkroad.tradeposts.TradePostListener;
 import dev.ked.silkroad.integration.BetterShopAPI;
@@ -33,6 +36,9 @@ public class SilkRoadPlugin extends JavaPlugin {
     private TransporterManager transporterManager;
     private InsuranceManager insuranceManager;
     private TradePostManager tradePostManager;
+    private MovementTracker movementTracker;
+    private CargoUpdateTask cargoUpdateTask;
+    private ContractExpiryWarningTask expiryWarningTask;
 
     // Integration
     private VaultEconomy economy;
@@ -80,6 +86,7 @@ public class SilkRoadPlugin extends JavaPlugin {
         tradePostManager = new TradePostManager(this, tradePostDataManager);
         contractManager = new ContractManager(this, contractRegistry, bountyCalculator,
                 transporterManager, insuranceManager, betterShopAPI);
+        movementTracker = new MovementTracker(this, transporterManager);
 
         // Load data
         contractDataManager.loadContracts(contractRegistry);
@@ -95,6 +102,14 @@ public class SilkRoadPlugin extends JavaPlugin {
         // Start decay task
         decayManager.start();
 
+        // Start cargo update task
+        cargoUpdateTask = new CargoUpdateTask(this, contractRegistry);
+        cargoUpdateTask.start();
+
+        // Start contract expiry warning task (runs every 10 seconds)
+        expiryWarningTask = new ContractExpiryWarningTask(this);
+        expiryWarningTask.runTaskTimer(this, 200L, 200L); // 10 seconds = 200 ticks
+
         // Start auto-save task
         startAutoSave();
 
@@ -106,6 +121,12 @@ public class SilkRoadPlugin extends JavaPlugin {
         // Stop tasks
         if (decayManager != null) {
             decayManager.stop();
+        }
+        if (cargoUpdateTask != null) {
+            cargoUpdateTask.cancel();
+        }
+        if (expiryWarningTask != null) {
+            expiryWarningTask.cancel();
         }
 
         // Save all data
@@ -155,6 +176,8 @@ public class SilkRoadPlugin extends JavaPlugin {
     private void registerListeners() {
         getServer().getPluginManager().registerEvents(new CargoProtectionListener(this), this);
         getServer().getPluginManager().registerEvents(new TradePostListener(this, tradePostManager, contractManager), this);
+        getServer().getPluginManager().registerEvents(new dev.ked.silkroad.gui.GUIListener(this), this);
+        getServer().getPluginManager().registerEvents(movementTracker, this);
     }
 
     private void registerCommands() {

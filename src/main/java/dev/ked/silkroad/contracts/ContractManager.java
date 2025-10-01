@@ -385,4 +385,20 @@ public class ContractManager {
         // Unregister after a delay
         Bukkit.getScheduler().runTaskLater(plugin, () -> registry.unregisterContract(contractId), 100L);
     }
+
+    /**
+     * Get delivered contracts waiting for pickup by a player at a trade post.
+     */
+    public java.util.List<Contract> getPendingOrdersForPlayer(UUID playerId, dev.ked.silkroad.tradeposts.TradePost tradePost) {
+        return registry.getDeliveredContractsForBuyer(playerId).stream()
+                .filter(c -> c.getDestinationRegion().equals(tradePost.getRegionName()))
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    /**
+     * Get all active contracts for a transporter.
+     */
+    public java.util.List<Contract> getActiveContractsForTransporter(UUID transporterId) {
+        return registry.getActiveContractsForTransporter(transporterId);
+    }
 }

@@ -237,6 +237,53 @@ public class TransporterManager {
         data.incrementCompletedContracts();
         data.addTotalDistance(contract.getTotalDistance());
         data.addTotalEarnings(contract.getCurrentBounty());
+
+        // Track travel time
+        if (contract.getAcceptedAt() > 0 && contract.getDeliveredAt() > 0) {
+            long travelTime = contract.getDeliveredAt() - contract.getAcceptedAt();
+            data.addTravelTime(travelTime);
+        }
+
+        // Track destination region
+        data.recordDelivery(contract.getDestinationRegion());
+
+        // Track all regions visited
+        for (String region : contract.getRegionDistances().keySet()) {
+            data.recordRegionVisit(region);
+        }
+
+        // Add to history
+        CompletedContractRecord record = new CompletedContractRecord(
+                contract.getContractId(),
+                contract.getDeliveredAt(),
+                contract.getOriginRegion(),
+                contract.getDestinationRegion(),
+                contract.getItem().getType(),
+                contract.getQuantity(),
+                contract.getCurrentBounty(),
+                contract.getTotalDistance(),
+                contract.getDeliveredAt() - contract.getAcceptedAt()
+        );
+        data.addToHistory(record);
+
+        dataManager.save(data);
+    }
+
+    /**
+     * Record a failed contract.
+     */
+    public void recordFailedContract(UUID playerId) {
+        TransporterData data = getTransporterData(playerId);
+        data.incrementFailedContracts();
+        dataManager.save(data);
+    }
+
+    /**
+     * Record a cancelled contract.
+     */
+    public void recordCancelledContract(UUID playerId) {
+        TransporterData data = getTransporterData(playerId);
+        data.incrementCancelledContracts();
         dataManager.save(data);
     }
 
@@ -255,16 +302,28 @@ public class TransporterManager {
         private int level;
         private int xp;
         private int completedContracts;
+        private int failedContracts;
+        private int cancelledContracts;
         private double totalDistance;
         private double totalEarnings;
+        private long totalTravelTime; // milliseconds
+        private final Map<String, Integer> regionDeliveries; // Region name -> delivery count
+        private final Map<String, Integer> regionsVisited; // All regions visited -> visit count
+        private final java.util.List<CompletedContractRecord> recentHistory; // Last 50 contracts
 
         public TransporterData(UUID playerId) {
             this.playerId = playerId;
             this.level = 1;
             this.xp = 0;
             this.completedContracts = 0;
+            this.failedContracts = 0;
+            this.cancelledContracts = 0;
             this.totalDistance = 0.0;
             this.totalEarnings = 0.0;
+            this.totalTravelTime = 0L;
+            this.regionDeliveries = new HashMap<>();
+            this.regionsVisited = new HashMap<>();
+            this.recentHistory = new java.util.ArrayList<>();
         }
 
         public UUID getPlayerId() {
@@ -325,6 +384,87 @@ public class TransporterManager {
 
         public void addTotalEarnings(double earnings) {
             this.totalEarnings += earnings;
+        }
+
+        public int getFailedContracts() {
+            return failedContracts;
+        }
+
+        public void setFailedContracts(int failedContracts) {
+            this.failedContracts = failedContracts;
+        }
+
+        public void incrementFailedContracts() {
+            this.failedContracts++;
+        }
+
+        public int getCancelledContracts() {
+            return cancelledContracts;
+        }
+
+        public void setCancelledContracts(int cancelledContracts) {
+            this.cancelledContracts = cancelledContracts;
+        }
+
+        public void incrementCancelledContracts() {
+            this.cancelledContracts++;
+        }
+
+        public long getTotalTravelTime() {
+            return totalTravelTime;
+        }
+
+        public void setTotalTravelTime(long totalTravelTime) {
+            this.totalTravelTime = totalTravelTime;
+        }
+
+        public void addTravelTime(long milliseconds) {
+            this.totalTravelTime += milliseconds;
+        }
+
+        public Map<String, Integer> getRegionDeliveries() {
+            return regionDeliveries;
+        }
+
+        public void recordDelivery(String region) {
+            regionDeliveries.put(region, regionDeliveries.getOrDefault(region, 0) + 1);
+        }
+
+        public Map<String, Integer> getRegionsVisited() {
+            return regionsVisited;
+        }
+
+        public void recordRegionVisit(String region) {
+            regionsVisited.put(region, regionsVisited.getOrDefault(region, 0) + 1);
+        }
+
+        public String getFavoriteRegion() {
+            return regionDeliveries.entrySet().stream()
+                    .max(Map.Entry.comparingByValue())
+                    .map(Map.Entry::getKey)
+                    .orElse("None");
+        }
+
+        public double getSuccessRate() {
+            int total = completedContracts + failedContracts + cancelledContracts;
+            if (total == 0) return 0.0;
+            return (double) completedContracts / total * 100.0;
+        }
+
+        public int getTotalContracts() {
+            return completedContracts + failedContracts + cancelledContracts;
+        }
+
+        public java.util.List<CompletedContractRecord> getRecentHistory() {
+            return recentHistory;
+        }
+
+        public void addToHistory(CompletedContractRecord record) {
+            recentHistory.add(0, record); // Add to front
+            // Keep only last 50
+            if (recentHistory.size() > 50) {
+                recentHistory.remove(recentHistory.size() - 1);
+            }
         }
     }
 }

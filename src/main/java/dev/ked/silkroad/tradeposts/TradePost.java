@@ -16,12 +16,18 @@ public class TradePost {
 
     private final Location location;
     private final String regionName;
+    private final String townName;
     private final UUID creatorId;
     private final long createdAt;
 
     public TradePost(Location location, String regionName, UUID creatorId) {
+        this(location, regionName, "Unknown", creatorId);
+    }
+
+    public TradePost(Location location, String regionName, String townName, UUID creatorId) {
         this.location = location;
         this.regionName = regionName;
+        this.townName = townName;
         this.creatorId = creatorId;
         this.createdAt = System.currentTimeMillis();
     }
