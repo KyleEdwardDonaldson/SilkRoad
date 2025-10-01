@@ -56,39 +56,42 @@ Silk Road integrates with **BetterShop** to create a three-party economic system
 - **Paper/Spigot** 1.21.3+
 - **Java** 17+
 - **Vault** (required)
-- **BetterShop** (required - must be updated with Silk Road integration)
+- **[BetterShop](https://github.com/KyleEdwardDonaldson/BetterShop)** (required - with Silk Road integration)
 - An economy plugin (EssentialsX, etc.)
 - **Towny** or **Towns and Nations** (optional, for territory features)
 
-### Building from Source
+### Building from Source (Windows)
 
 1. **Clone or download this repository**
-   ```bash
-   cd /var/repos/SilkRoad
+   ```powershell
+   cd C:\path\to\repos
+   git clone https://github.com/KyleEdwardDonaldson/SilkRoad.git
+   cd SilkRoad
    ```
 
 2. **Build with Maven**
-   ```bash
+   ```powershell
    mvn clean package
    ```
-   The compiled JAR will be in `target/silkroad-0.1.0.jar`
+   The compiled JAR will be in `target\silkroad-0.1.0.jar`
 
 3. **Place in plugins folder**
-   ```bash
-   cp target/silkroad-0.1.0.jar /path/to/server/plugins/
+   ```powershell
+   copy target\silkroad-0.1.0.jar C:\path\to\server\plugins\
    ```
 
 4. **Restart server**
 
-### BetterShop Integration Setup
+### BetterShop Integration
 
-⚠️ **IMPORTANT**: BetterShop must be updated with Silk Road integration features.
+Silk Road requires **BetterShop v0.1.0+** with integrated support.
 
-See the `BetterShopAPI.java` file for detailed implementation requirements:
-- Silk Road toggle per shop
-- Stock reservation system
-- Commands: `/shop silkroad enable/disable`
-- Events for stock reservation and transaction completion
+Shop owners can enable Silk Road on their shops using:
+```
+/shop silkroad enable
+```
+
+This allows remote purchases and automatically creates delivery contracts!
 
 ## Usage
 
