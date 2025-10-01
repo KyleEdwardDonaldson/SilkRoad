@@ -1,0 +1,125 @@
+# Silk Road Messages
+# Use MiniMessage format: https://docs.advntr.dev/minimessage/format.html
+# Placeholders: {bounty}, {insurance}, {destination}, {region}, {quantity}, {item}, {amount}, {level}
+
+# Prefix for all messages
+prefix: "<gold>[Silk Road]</gold> "
+
+# Contract messages
+contract:
+  created: "<green>Contract created! Delivery bounty: <gold>${bounty}</gold></green>"
+  accepted: "<green>Contract accepted! Deliver to <yellow>{destination}</yellow></green>"
+  delivered: "<green>Contract completed! You earned <gold>${bounty}</gold></green>"
+  expired: "<red>Contract expired - bounty reached $0</red>"
+  cancelled: "<yellow>Contract cancelled</yellow>"
+
+  insufficientInsurance: "<red>You need <gold>${insurance}</gold> for insurance!</red>"
+  levelTooLow: "<red>This contract requires transporter level {level}</red>"
+  maxContractsReached: "<red>You have too many active contracts ({current}/{max})</red>"
+  noActiveContracts: "<yellow>You have no active contracts</yellow>"
+
+  expiryWarning30: "<yellow>WARNING: Contract expires in 30 minutes! Current bounty: <gold>${bounty}</gold></yellow>"
+  expiryWarning10: "<red>URGENT: Contract expires in 10 minutes! Current bounty: <gold>${bounty}</gold></red>"
+
+# Buyer messages
+buyer:
+  orderPlaced: "<green>Order placed! A transporter will deliver your items.</green>"
+  orderDelivered: "<green>Your order has arrived! Visit a Trade Post to pick up.</green>"
+  orderRefunded: "<yellow>Your order was cancelled. Refunded <gold>${amount}</gold></yellow>"
+  insufficientFunds: "<red>You need <gold>${amount}</gold> to purchase this!</red>"
+  inventoryFull: "<red>Your inventory is full! Clear space and try again.</red>"
+
+# Shop owner messages
+shop:
+  silkRoadEnabled: "<green>Silk Road enabled for this shop!</green>"
+  silkRoadDisabled: "<yellow>Silk Road disabled for this shop</yellow>"
+  silkRoadEnabledAll: "<green>Silk Road enabled for all your shops!</green>"
+  silkRoadDisabledAll: "<yellow>Silk Road disabled for all your shops</yellow>"
+  stockReserved: "<yellow>{quantity}x {item} reserved for Silk Road delivery</yellow>"
+  saleCompleted: "<green>Silk Road sale completed! <gold>${amount}</gold> added to earnings</green>"
+  insufficientStock: "<red>Shop doesn't have enough stock for this order!</red>"
+  notSilkRoadShop: "<red>This shop is not Silk Road enabled!</red>"
+
+# Trade Post messages
+tradePost:
+  created: "<green>Trade Post created for <yellow>{region}</yellow>!</green>"
+  removed: "<yellow>Trade Post removed</yellow>"
+  noItemsToPickup: "<yellow>No items waiting for pickup</yellow>"
+  itemsReceived: "<green>Received {items} from deliveries!</green>"
+  alreadyExists: "<red>A Trade Post already exists in this town!</red>"
+  requiresClaim: "<red>Trade Posts must be placed in claimed territory!</red>"
+  notLookingAt: "<red>You must be looking at a Trade Post!</red>"
+
+# Transporter progression messages
+progression:
+  levelUp: "<gold><bold>LEVEL UP!</bold> You are now a <yellow>{level}</yellow> transporter!</gold>"
+  xpGained: "<gray>+{xp} Transport XP</gray>"
+  stats: |
+    <gold><bold>Your Transporter Stats</bold></gold>
+    <gray>Level:</gray> <yellow>{level}</yellow> <gray>({levelName})</gray>
+    <gray>XP:</gray> <green>{xp}</green><gray>/</gray><yellow>{nextLevelXp}</yellow>
+    <gray>Max Contracts:</gray> <aqua>{maxContracts}</aqua>
+    <gray>Active Contracts:</gray> <aqua>{activeContracts}</aqua><gray>/</gray><aqua>{maxContracts}</aqua>
+    <gray>Insurance Discount:</gray> <green>{discount}%</green>
+    <gray>Completed Deliveries:</gray> <yellow>{completedCount}</yellow>
+    <gray>Total Distance:</gray> <yellow>{totalDistance}m</yellow>
+    <gray>Total Earnings:</gray> <gold>${totalEarnings}</gold>
+
+# Cargo messages
+cargo:
+  pickedUp: "<green>Cargo picked up! Deliver to <yellow>{destination}</yellow></green>"
+  alreadyPickedUp: "<red>You've already picked up this cargo!</red>"
+  wrongShop: "<red>This cargo is for a different shop!</red>"
+  navigationInfo: |
+    <gold><bold>Cargo Navigation</bold></gold>
+    <gray>Next Step:</gray> <yellow>{nextStep}</yellow>
+    <gray>Distance:</gray> <aqua>{distance}m</aqua>
+    <gray>Current Bounty:</gray> <gold>${bounty}</gold>
+    <gray>Time Left:</gray> <red>{timeLeft}</red>
+
+# Territory messages
+territory:
+  noTerritory: "<red>You must be in claimed territory to use this!</red>"
+  notInTown: "<red>You are not a member of any town!</red>"
+  insurancePaid: "<yellow>Insurance paid: <gold>${insurance}</gold> to <aqua>{territory}</aqua></yellow>"
+
+# Admin messages
+admin:
+  reloaded: "<green>Silk Road configuration reloaded!</green>"
+  contractCancelled: "<yellow>Contract <gray>{contractId}</gray> cancelled</yellow>"
+  noSuchContract: "<red>No contract found with that ID!</red>"
+  contractInfo: |
+    <gold><bold>Contract Info</bold></gold>
+    <gray>ID:</gray> <yellow>{contractId}</yellow>
+    <gray>State:</gray> <aqua>{state}</aqua>
+    <gray>Buyer:</gray> <white>{buyer}</white>
+    <gray>Transporter:</gray> <white>{transporter}</white>
+    <gray>Item:</gray> <yellow>{item}</yellow> <gray>x{quantity}</gray>
+    <gray>Origin:</gray> <green>{origin}</green>
+    <gray>Destination:</gray> <blue>{destination}</blue>
+    <gray>Shop Price:</gray> <gold>${shopPrice}</gold>
+    <gray>Current Bounty:</gray> <gold>${currentBounty}</gold>
+    <gray>Created:</gray> <white>{createdAt}</white>
+
+# Error messages
+error:
+  noPermission: "<red>You don't have permission to do that!</red>"
+  playerOnly: "<red>This command can only be used by players!</red>"
+  invalidCommand: "<red>Invalid command! Use <yellow>/silkroad help</yellow></red>"
+  notEnoughArguments: "<red>Not enough arguments! Use <yellow>/silkroad help</yellow></red>"
+  betterShopNotFound: "<red>BetterShop plugin not found! Silk Road requires BetterShop.</red>"
+  vaultNotFound: "<red>Vault plugin not found! Silk Road requires Vault.</red>"
+  configError: "<red>Error loading configuration! Check console for details.</red>"
+
+# Help messages
+help:
+  header: "<gold><bold>Silk Road Commands</bold></gold>"
+  silkroad: "<yellow>/silkroad help</yellow> <gray>- Show this help</gray>"
+  stats: "<yellow>/silkroad stats</yellow> <gray>- View your transporter stats</gray>"
+  contracts: "<yellow>/silkroad contracts</yellow> <gray>- List your active contracts</gray>"
+  tradepostCreate: "<yellow>/tradepost create</yellow> <gray>- Create a trade post</gray>"
+  tradepostRemove: "<yellow>/tradepost remove</yellow> <gray>- Remove a trade post</gray>"
+  tradepostInfo: "<yellow>/tradepost info</yellow> <gray>- View trade post info</gray>"
+  adminReload: "<yellow>/silkroad admin reload</yellow> <gray>- Reload config</gray>"
+  adminContracts: "<yellow>/silkroad admin contracts</yellow> <gray>- View all contracts</gray>"
+  adminCancel: "<yellow>/silkroad admin cancel <id></yellow> <gray>- Cancel a contract</gray>"

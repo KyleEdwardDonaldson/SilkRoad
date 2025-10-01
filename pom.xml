@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>dev.ked</groupId>
+    <artifactId>silkroad</artifactId>
+    <version>0.1.0</version>
+    <packaging>jar</packaging>
+
+    <name>SilkRoad</name>
+    <description>Cross-regional trading system with player-driven delivery contracts</description>
+
+    <properties>
+        <java.version>17</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.5.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+    </build>
+
+    <repositories>
+        <!-- Paper -->
+        <repository>
+            <id>papermc-repo</id>
+            <url>https://repo.papermc.io/repository/maven-public/</url>
+        </repository>
+        <!-- Jitpack for Vault -->
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+        <!-- Glaremasters (Towny) -->
+        <repository>
+            <id>glaremasters</id>
+            <url>https://repo.glaremasters.me/repository/towny/</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <!-- Paper API -->
+        <dependency>
+            <groupId>io.papermc.paper</groupId>
+            <artifactId>paper-api</artifactId>
+            <version>1.21.3-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Vault API -->
+        <dependency>
+            <groupId>com.github.MilkBowl</groupId>
+            <artifactId>VaultAPI</artifactId>
+            <version>1.7.1</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Gson for JSON -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.10.1</version>
+        </dependency>
+
+        <!-- Towny (optional) -->
+        <dependency>
+            <groupId>com.palmergames.bukkit.towny</groupId>
+            <artifactId>towny</artifactId>
+            <version>0.100.3.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- BetterShop (local dependency - place JAR in libs/ folder) -->
+        <!-- Build BetterShop first and place bettershop-0.1.0.jar in libs/ folder -->
+    </dependencies>
+
+    <profiles>
+        <profile>
+            <id>with-bettershop</id>
+            <activation>
+                <file>
+                    <exists>${project.basedir}/libs/bettershop-0.1.0.jar</exists>
+                </file>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>dev.ked</groupId>
+                    <artifactId>bettershop</artifactId>
+                    <version>0.1.0</version>
+                    <scope>system</scope>
+                    <systemPath>${project.basedir}/libs/bettershop-0.1.0.jar</systemPath>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <profile>
+            <id>with-tan</id>
+            <activation>
+                <file>
+                    <exists>${basedir}/libs/TownsAndNations-0.15.4.jar</exists>
+                </file>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.leralix</groupId>
+                    <artifactId>TownsAndNations</artifactId>
+                    <version>0.15.4</version>
+                    <scope>system</scope>
+                    <systemPath>${basedir}/libs/TownsAndNations-0.15.4.jar</systemPath>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
+</project>

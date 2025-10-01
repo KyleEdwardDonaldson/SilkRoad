@@ -1,0 +1,150 @@
+# Silk Road Configuration
+
+# Economy settings
+economy:
+  # Should the server create money for bounties (inflation) or tax buyer?
+  serverPaidBounty: true
+
+  # Insurance system
+  insurance:
+    enabled: true
+    # Percentage of bounty required as insurance (0.10 = 10%)
+    rate: 0.10
+    # Can transporters get insurance refunded on cancellation?
+    refundable: false
+
+# Bounty calculation
+bounty:
+  # Region rates ($ per block traveled)
+  # Configure these based on your server's regions
+  regionRates:
+    stormlands: 0.50    # High risk, high reward
+    middle: 0.20        # Moderate risk
+    safe: 0.05          # Low risk, low reward
+    # Add more regions as needed:
+    # desert: 0.30
+    # ice: 0.40
+
+  # Percentage of item value to add to bounty (0.15 = 15%)
+  valueMultiplier: 0.15
+
+  # Decay system
+  decay:
+    # Base decay rate in $/second (before distance scaling)
+    baseRate: 0.10
+    # Minimum contract duration in seconds (600 = 10 minutes)
+    minimumDuration: 600
+    # How often to update bounty decay (in seconds)
+    tickInterval: 5
+
+# Cargo items
+cargo:
+  # Material to use for cargo items
+  material: BUNDLE
+  # Protection settings
+  preventDrop: true
+  preventTrade: true
+  preventStorage: true
+  persistThroughDeath: true
+  # Movement slowness level (0 to disable, 1-4 for slowness I-IV)
+  movementSlowness: 1
+  # How often to update cargo item lore in seconds
+  loreUpdateInterval: 30
+
+# Transporter progression
+progression:
+  enabled: true
+  # XP per 100 blocks traveled with cargo
+  xpPerBlock: 0.1
+  # XP bonus per completed contract
+  xpPerCompletion: 50
+  # XP bonus per region crossed
+  xpPerRegionCrossed: 25
+  # XP bonus for high-value deliveries (>$1000 shop value)
+  xpHighValueBonus: 100
+
+  # Level definitions
+  levels:
+    1:
+      name: "Novice"
+      xpRequired: 0
+      maxContracts: 1
+      maxValue: 500
+      insuranceDiscount: 0.0
+    2:
+      name: "Courier"
+      xpRequired: 500
+      maxContracts: 2
+      maxValue: 1000
+      insuranceDiscount: 0.0
+    3:
+      name: "Trader"
+      xpRequired: 1500
+      maxContracts: 3
+      maxValue: 5000
+      insuranceDiscount: 0.0
+    4:
+      name: "Merchant"
+      xpRequired: 3500
+      maxContracts: 4
+      maxValue: 999999
+      insuranceDiscount: 0.05
+    5:
+      name: "Caravan Master"
+      xpRequired: 7000
+      maxContracts: 5
+      maxValue: 999999
+      insuranceDiscount: 0.10
+
+# Trade Post settings
+tradePosts:
+  # Block type for trade posts (LECTERN or BARREL)
+  blockType: LECTERN
+  # Limit one trade post per town?
+  onePerTown: true
+  # Require trade posts to be in claimed territory?
+  requiresClaim: true
+  # Protect trade posts from being broken?
+  protectFromBreaking: true
+
+# Integration settings
+integration:
+  # BetterShop integration
+  betterShop:
+    enabled: true
+    # Show "X in transit" on shop signs/holograms?
+    showTransitStock: true
+
+  # Towny integration
+  towny:
+    enabled: true
+    # Send insurance to nation treasury (true) or town treasury (false)?
+    useNationTreasury: true
+
+  # Towns and Nations integration (alternative to Towny)
+  townsandnations:
+    enabled: false
+
+  # Stormcraft integration (for balancing)
+  stormcraft:
+    enabled: true
+    # Essence farming rate for balancing reference (essence/minute)
+    essenceFarmingRate: 50
+
+# Performance settings
+performance:
+  # Maximum contracts to show in GUI at once
+  contractBrowseLimit: 100
+  # Save contracts to disk every X seconds
+  contractSaveInterval: 30
+  # Global maximum active contracts
+  maxActiveContracts: 500
+
+# Miscellaneous
+misc:
+  # Number of completed contracts to track per player
+  contractHistorySize: 50
+  # Enable bStats metrics?
+  enableMetrics: true
+  # Debug mode (verbose logging)
+  debug: false

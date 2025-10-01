@@ -1,0 +1,82 @@
+name: SilkRoad
+version: '${project.version}'
+main: dev.ked.silkroad.SilkRoadPlugin
+api-version: '1.21'
+author: ked
+description: Cross-regional trading system with player-driven delivery contracts
+
+depend:
+  - Vault
+
+softdepend:
+  - BetterShop
+  - Towny
+  - TownsAndNations
+
+commands:
+  silkroad:
+    description: Main Silk Road command
+    aliases: [sr]
+    usage: /silkroad <help|stats|contracts>
+    permission: silkroad.use
+
+  tradepost:
+    description: Trade Post management commands
+    aliases: [tp]
+    usage: /tradepost <create|remove|info>
+    permission: silkroad.tradepost.use
+
+permissions:
+  silkroad.*:
+    description: All Silk Road permissions
+    children:
+      silkroad.use: true
+      silkroad.transport: true
+      silkroad.shop.enable: true
+      silkroad.tradepost.use: true
+      silkroad.tradepost.create: true
+
+  silkroad.use:
+    description: Access Trade Posts and browse contracts
+    default: true
+
+  silkroad.transport:
+    description: Accept and complete delivery contracts
+    default: true
+
+  silkroad.shop.enable:
+    description: Enable Silk Road on own shops
+    default: true
+
+  silkroad.tradepost.use:
+    description: Interact with trade posts
+    default: true
+
+  silkroad.tradepost.create:
+    description: Create trade posts
+    default: true
+
+  silkroad.admin:
+    description: All admin permissions
+    default: op
+    children:
+      silkroad.admin.reload: true
+      silkroad.admin.contracts: true
+      silkroad.admin.tradepost: true
+      silkroad.admin.bypass: true
+
+  silkroad.admin.reload:
+    description: Reload configuration
+    default: op
+
+  silkroad.admin.contracts:
+    description: View and manage all contracts
+    default: op
+
+  silkroad.admin.tradepost:
+    description: Create/remove any trade post
+    default: op
+
+  silkroad.admin.bypass:
+    description: Bypass level and insurance requirements
+    default: op
