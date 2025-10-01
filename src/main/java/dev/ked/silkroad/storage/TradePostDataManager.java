@@ -86,7 +86,10 @@ public class TradePostDataManager {
                 gson.toJson(jsonArray, writer);
             }
 
-            plugin.getLogger().info("Saved " + manager.getTradePostCount() + " trade posts to disk");
+            int count = manager.getTradePostCount();
+            if (count > 0) {
+                plugin.getLogger().info("Saved " + count + " trade posts to disk");
+            }
 
         } catch (Exception e) {
             plugin.getLogger().severe("Failed to save trade posts: " + e.getMessage());

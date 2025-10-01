@@ -58,7 +58,9 @@ public class ContractDataManager {
                 gson.toJson(jsonArray, writer);
             }
 
-            plugin.getLogger().info("Saved " + contracts.size() + " contracts to disk");
+            if (contracts.size() > 0) {
+                plugin.getLogger().info("Saved " + contracts.size() + " contracts to disk");
+            }
 
         } catch (Exception e) {
             plugin.getLogger().severe("Failed to save contracts: " + e.getMessage());

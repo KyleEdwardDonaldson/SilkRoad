@@ -104,7 +104,9 @@ public class TransporterDataManager {
                 gson.toJson(root, writer);
             }
 
-            plugin.getLogger().info("Saved " + cache.size() + " transporter profiles to disk");
+            if (cache.size() > 0) {
+                plugin.getLogger().info("Saved " + cache.size() + " transporter profiles to disk");
+            }
 
         } catch (Exception e) {
             plugin.getLogger().severe("Failed to save transporter data: " + e.getMessage());
