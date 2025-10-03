@@ -1,6 +1,6 @@
 # 🛤️ Silk Road
 
-A cross-regional trading system for Minecraft Paper 1.21.3+ that enables player-driven delivery contracts. Players can order items from distant regions, and transporters earn bounties by delivering goods safely across dangerous territories.
+A cross-regional trading system for Minecraft Paper 1.21.3 - 1.21.9 that enables player-driven delivery contracts. Players can order items from distant regions, and transporters earn bounties by delivering goods safely across dangerous territories.
 
 ## Overview
 
@@ -53,8 +53,8 @@ Silk Road integrates with **BetterShop** to create a three-party economic system
 ## Installation
 
 ### Requirements
-- **Paper/Spigot** 1.21.3+
-- **Java** 17+
+- **Paper/Spigot** 1.21.3 - 1.21.9
+- **Java** 21+
 - **Vault** (required)
 - **[BetterShop](https://github.com/KyleEdwardDonaldson/BetterShop)** (required - with Silk Road integration)
 - An economy plugin (EssentialsX, etc.)
